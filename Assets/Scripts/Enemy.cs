@@ -24,10 +24,12 @@ public class Enemy : MonoBehaviour
 
     float m_WaitTime;
     float m_TimeToRotate;
+    bool isStunned;
     bool m_PlayerInRange;
     bool m_PlayerNear;
     bool m_IsPatrol;
     bool m_CaughtPlayer;
+    public bool hiding;
     
     // Start is called before the first frame update
     void Start()
@@ -36,6 +38,7 @@ public class Enemy : MonoBehaviour
         m_IsPatrol = true;
         m_CaughtPlayer = false;
         m_PlayerInRange = false;
+        isStunned = false;
         m_WaitTime = startWaitTime;
         m_TimeToRotate = timeToRotate;
 
@@ -45,6 +48,8 @@ public class Enemy : MonoBehaviour
         navMeshAgent.isStopped = false;
         navMeshAgent.speed = speedWalk;
         navMeshAgent.SetDestination(waypoints[m_CurrentWaypointIndex].position);
+
+        hiding = GameObject.Find("GameManager").GetComponent<GameManager>().hiding;
     }
 
     // Update is called once per frame
@@ -52,11 +57,11 @@ public class Enemy : MonoBehaviour
     {
         EnvironmentView();
 
-        if(!m_IsPatrol)
+        if(!m_IsPatrol && !isStunned && !hiding)
         {
             Chasing();
         }
-        else
+        else if (!isStunned)
         {
             Patrolling();
         }
@@ -228,5 +233,17 @@ public class Enemy : MonoBehaviour
             //I hit the player!
             GameObject.Find("GameManager").GetComponent<GameManager>().LoseHealth();
         }
+    }
+
+    public void Stun()
+    {
+        isStunned = true;
+        StartCoroutine("CoStun");
+    }
+
+    IEnumerator CoStun()
+    {
+        yield return new WaitForSeconds(5f);
+        isStunned = false;
     }
 }

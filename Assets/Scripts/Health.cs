@@ -16,7 +16,7 @@ public class Health : MonoBehaviour
         
     }
 
-        private void OnTriggerEnter(Collider whatIHit)
+    private void OnTriggerEnter(Collider whatIHit)
     {
         if(whatIHit.tag == "Player")
         {

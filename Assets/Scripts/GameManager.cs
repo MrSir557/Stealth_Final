@@ -6,26 +6,34 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    public AudioSource playAudio;
+    public AudioClip healthAudio;
+    public AudioClip noHealthAudio;
+    public AudioClip boneCrack;
+    public bool isPlaying;
+    public AudioClip[] damageSound;
     public int health = 4;
     public float iFrames = 1.0f;
     float m_DamageCooldown = 0;
 
     public bool hasKey;
     public Animator anim;
-    public Animator stealthAnim; 
+    public Animator stealthAnim;
+    public Animator borderAnim; 
     
     public Transform playerPosition;
     public bool hiding = false;
     public bool isChased = false;
 
 
-    public GameObject stealthHUD;
     public GameObject keyHUD;
+    public GameObject borderHUD;
 
     // Start is called before the first frame update
     void Start()
     {
-
+        playAudio = GameObject.FindGameObjectWithTag("Player").GetComponent<AudioSource>();
+        damageSound = new AudioClip[8];
     }
 
     // Update is called once per frame
@@ -65,21 +73,44 @@ public class GameManager : MonoBehaviour
         
         m_DamageCooldown = iFrames;
 
+        playAudio.clip = damageSound[Random.Range(0, damageSound.Length)];
+        playAudio.Play();
+         
         health--;
         anim.SetInteger("Health", health);
+        
+        borderHUD.SetActive(true);
+        borderAnim.SetInteger("Health", health);
+
+        if(health == 1)
+        {
+            playAudio.clip = boneCrack;
+            playAudio.Play();
+        }
 
         if(health == 0)
-        {
             SceneManager.LoadScene("Lose");
-        }
-        
     }
     public void GetHealth()
     {
         if(health < 4)
         {
             health++;
+            
+            if(health == 4)
+                borderHUD.SetActive(false);
+
+            playAudio.clip = healthAudio;
+            playAudio.Play();
+
             anim.SetInteger("Health", health);
+            borderAnim.SetInteger("Health", health);
+        }
+
+        else if(health == 4)
+        {
+            playAudio.clip = noHealthAudio;
+            playAudio.Play();
         }
     }
 
